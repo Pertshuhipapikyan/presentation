@@ -15,7 +15,6 @@ format:
     code-fold: true
     code-summary: "Show code"
     embed-resources: true
-jupyter: python3
 execute:
   echo: false
   warning: false
