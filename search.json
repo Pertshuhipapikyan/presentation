@@ -1,0 +1,135 @@
+[
+  {
+    "objectID": "index.html#citi-bike-jersey-city",
+    "href": "index.html#citi-bike-jersey-city",
+    "title": "Citi Bike Jersey City",
+    "section": "1. Citi Bike Jersey City",
+    "text": "1. Citi Bike Jersey City\nFrom millions of ride events to actionable mobility insights\nMain question:\nHow can Citi Bike trip data be transformed into useful insights about when, where, and under what conditions people ride?\n\n\nCiti Bike trip data\nWeather enrichment\nTemporal and station analysis\nNeighborhood-level spatial analysis\nPostgreSQL + PostGIS\nTableau dashboard\n\n\nHello everyone. Today I am going to present my Citi Bike Jersey City data analytics project.\nI started with raw Citi Bike trip files, but a trip record alone only tells us where and when a ride happened.\nI wanted to understand three things: when people ride, where activity is concentrated, and whether external factors such as weather help explain demand.\nTo answer these questions, I built an end-to-end analytics pipeline using Python, weather data, geospatial analysis, PostgreSQL, PostGIS, and Tableau."
+  },
+  {
+    "objectID": "index.html#the-analytics-story",
+    "href": "index.html#the-analytics-story",
+    "title": "Citi Bike Jersey City",
+    "section": "2. The Analytics Story",
+    "text": "2. The Analytics Story\nA Citi Bike trip tells us when and where a ride happened, the bike type, and whether the rider was a member or casual user.\nBut raw transactions do not directly explain:\n\n\nHow demand changes through the year\nWhich stations dominate the network\nHow weather relates to ridership\nWhich neighborhoods have the highest activity\n\nGoal: transform individual rides into meaningful mobility patterns.\n\nThe starting point was transactional Citi Bike data.\nIt contains timestamps, station names, coordinates, bike type, and membership type.\nHowever, raw transactions are not the same as insight.\nKnowing that one ride happened at Grove Street does not tell us whether Grove Street is strategically important.\nThe challenge was therefore to transform individual trip records into patterns that support interpretation and decision-making."
+  },
+  {
+    "objectID": "index.html#data-collection-raw-structure",
+    "href": "index.html#data-collection-raw-structure",
+    "title": "Citi Bike Jersey City",
+    "section": "3. Data Collection & Raw Structure",
+    "text": "3. Data Collection & Raw Structure\nMonthly Jersey City Citi Bike ZIP files were downloaded automatically from the Citi Bike S3 repository.\n\n\nPython automated downloading and extraction\nMonthly CSV files were concatenated\nDuplicate ride_id values were removed\nThe process was extended to January–June 2026\n\nThe original dataset contains 13 variables:\n\n\n\nCategory\nVariables\n\n\n\n\nRide\nride_id, rideable_type\n\n\nTime\nstarted_at, ended_at\n\n\nStart\nstation name/ID, latitude, longitude\n\n\nEnd\nstation name/ID, latitude, longitude\n\n\nRider\nmember_casual\n\n\n\n2025 raw data: 952,093 rides × 13 columns\n\nThe first stage was automated data acquisition.\nInstead of downloading every monthly file manually, Python downloads, extracts, and combines the Citi Bike files.\nThis makes the process reproducible and allows new months to be added easily.\nAfter combining the 2025 files, the raw dataset contained 952,093 ride records and 13 variables."
+  },
+  {
+    "objectID": "index.html#data-quality-feature-engineering",
+    "href": "index.html#data-quality-feature-engineering",
+    "title": "Citi Bike Jersey City",
+    "section": "4. Data Quality & Feature Engineering",
+    "text": "4. Data Quality & Feature Engineering\nMissing values were limited and concentrated mainly in destination information.\n\n\n\nField\nMissing\nShare\n\n\n\n\nend_station_id\n4,265\n0.448%\n\n\nend_lat / end_lng\n3,425\n0.360%\n\n\nend_station_name\n3,128\n0.329%\n\n\nstart_station_name\n3\n~0.0003%\n\n\n\nAfter duration-related processing:\n~951,743 working records\nNew analytical features:\n\n\nRide duration\nDate and month\nDay of week\nHour\nSeason\n\n\nBefore analysis, I checked data quality.\nMissing values were relatively limited and mainly associated with destination information. Start station information was almost complete.\nI then calculated ride duration and transformed timestamps into analytical dimensions such as date, month, weekday, hour, and season.\nThis is where operational data started becoming analytical data."
+  },
+  {
+    "objectID": "index.html#weather-enrichment",
+    "href": "index.html#weather-enrichment",
+    "title": "Citi Bike Jersey City",
+    "section": "5. Weather Enrichment",
+    "text": "5. Weather Enrichment\nHistorical weather data for Jersey City was collected from Open-Meteo around coordinates 40.7178, -74.0431.\nWeather variables:\n\n\nMaximum, minimum, and average temperature\nPrecipitation\nRain\nSnowfall\nMaximum wind speed\n\nDaily ride counts were merged with weather observations using date.\nResult: 0 missing values across merged weather variables\n\nAfter understanding when rides happened, I added environmental context.\nWeather data came from Open-Meteo and included temperature, precipitation, rain, snowfall, and wind speed.\nBecause Citi Bike data is ride-level while weather is daily, I first aggregated rides by date and then joined the daily totals with weather observations.\nThe resulting weather-analysis table had no missing weather values for the analyzed dates."
+  },
+  {
+    "objectID": "index.html#temporal-analysis-monthly-demand",
+    "href": "index.html#temporal-analysis-monthly-demand",
+    "title": "Citi Bike Jersey City",
+    "section": "6. Temporal Analysis: Monthly Demand",
+    "text": "6. Temporal Analysis: Monthly Demand\nThe analysis shows strong changes in demand throughout the year.\n\nSeptember had the highest activity in the enriched monthly analysis.\n\nThe first major analytical question was how demand changes over time.\nActivity increases strongly from the colder months toward summer and early autumn.\nSeptember reached the highest monthly value in the enriched analysis, followed by a decline toward winter.\nThe important insight is the overall seasonal shape of demand rather than only one individual month."
+  },
+  {
+    "objectID": "index.html#seasonality-weather",
+    "href": "index.html#seasonality-weather",
+    "title": "Citi Bike Jersey City",
+    "section": "7. Seasonality & Weather",
+    "text": "7. Seasonality & Weather\nHow does weather relate to Citi Bike demand?\n\n\n\nSummer showed the highest activity\nWinter showed the lowest activity\nTemperature provides useful context for changes in daily ridership\nThe relationship shows association, not causality\n\n\nGrouping the data by season made the pattern even clearer.\nSummer had the highest activity and winter had the lowest.\nI then compared daily ride volume with temperature, wind speed, and precipitation and created a time-series comparison between rides and average temperature.\nThis analysis shows associations rather than causality, but weather provides useful context for understanding demand variation."
+  },
+  {
+    "objectID": "index.html#station-analysis",
+    "href": "index.html#station-analysis",
+    "title": "Citi Bike Jersey City",
+    "section": "8. Station Analysis",
+    "text": "8. Station Analysis\nTop Starting Stations\n\n\n\nStation\nDepartures\n\n\n\n\nGrove St PATH\n244,456\n\n\nHoboken Terminal\n142,558\n\n\nHamilton Park\n122,260\n\n\nRiver St & Newark St\n121,027\n\n\nNewport PATH\n113,275\n\n\nExchange Pl\n110,247\n\n\n\nTop Ending Stations\n\n\n\nStation\nArrivals\n\n\n\n\nGrove St PATH\n259,946\n\n\nHoboken Terminal\n146,358\n\n\nRiver St & Newark St\n124,079\n\n\nHamilton Park\n122,935\n\n\nNewport PATH\n114,186\n\n\n\n\nAfter understanding when people ride, I moved to where they ride.\nGrove Street PATH was the strongest station in both directions, with more than 244 thousand departures and approximately 260 thousand arrivals.\nOther high-volume locations include Hoboken Terminal, Hamilton Park, Newport PATH, and River Street.\nSeveral of the busiest locations are connected to major transportation hubs."
+  },
+  {
+    "objectID": "index.html#spatial-analysis",
+    "href": "index.html#spatial-analysis",
+    "title": "Citi Bike Jersey City",
+    "section": "9. Spatial Analysis",
+    "text": "9. Spatial Analysis\nStation coordinates were converted into geographic points with GeoPandas using EPSG:4326.\nThe project identified:\n\n\n480 stations in the complete station dataset\n78 stations inside Jersey City neighborhood polygons\n53 neighborhood polygons\n\nInteractive Folium maps were created for:\n\n\nStation locations\nTotal activity\nStation count\nAverage activity per station\nDepartures and arrivals\n\n\nCoordinates allowed me to move from station names to spatial analysis.\nI converted longitude and latitude into geographic points using GeoPandas.\nThe complete station dataset contained 480 stations, while 78 were located inside the Jersey City neighborhood polygons used in the project.\nThe GeoJSON contained 53 neighborhood polygons.\nFolium was then used to visualize several geographic measures interactively."
+  },
+  {
+    "objectID": "index.html#neighborhood-insights",
+    "href": "index.html#neighborhood-insights",
+    "title": "Citi Bike Jersey City",
+    "section": "10. Neighborhood Insights",
+    "text": "10. Neighborhood Insights\n\n\n\nNeighborhood\nStations\nTotal Activity\n\n\n\n\nVan Vorst Park\n6\n1,067,669\n\n\nPalus Hook\n6\n658,549\n\n\nNewport\n2\n434,986\n\n\nJournal Square\n3\n356,885\n\n\nHamilton Park\n2\n349,111\n\n\n\nVan Vorst Park had the highest total neighborhood activity.\nAverage activity per station revealed another pattern:\n\n\nNewport: ~217,493\nVan Vorst Park: ~177,945\nHamilton Park: ~174,556\n\n\nOnce stations were assigned to neighborhoods, I aggregated arrivals and departures geographically.\nVan Vorst Park had the highest total activity, exceeding one million combined activity records.\nHowever, total activity is affected by station count.\nWhen I calculated average activity per station, Newport ranked particularly high despite having only two stations in this spatial summary.\nThis demonstrates why total activity and station efficiency should be considered separately."
+  },
+  {
+    "objectID": "index.html#postgresql-postgis",
+    "href": "index.html#postgresql-postgis",
+    "title": "Citi Bike Jersey City",
+    "section": "11. PostgreSQL & PostGIS",
+    "text": "11. PostgreSQL & PostGIS\nThe analytical data was moved into:\nPostgreSQL 17 + PostGIS 3.4\nMain database objects:\n\n\njersey_city\njersey_weather\njersey_city_neighborhoods\njc_2025_stations\n\nPostGIS validation:\n\n\nNeighborhoods → ST_Polygon\nStations → ST_Point\nCoordinate system → SRID 4326\n\n\nThe next step was to move from exploratory notebooks to a reusable analytics architecture.\nPython was connected to PostgreSQL using SQLAlchemy, while PostGIS was enabled for geographic information.\nRide data, weather, neighborhood polygons, and station points were stored as separate database objects.\nPostGIS allows geographic objects and spatial logic to be managed directly inside PostgreSQL."
+  },
+  {
+    "objectID": "index.html#preparing-data-for-tableau",
+    "href": "index.html#preparing-data-for-tableau",
+    "title": "Citi Bike Jersey City",
+    "section": "12. Preparing Data for Tableau",
+    "text": "12. Preparing Data for Tableau\nA dashboard-specific materialized view was created:\nmv_tableau_citibike_dashboard\nIt combines:\n\n\nRide and rider information\nDate and time dimensions\nRide duration and distance\nWeather\nStart and end neighborhoods\nTemperature groups\nPrecipitation indicators\n\nPurpose: one optimized analytical source for Tableau.\n\nI did not want Tableau to repeat all the cleaning, joining, and feature-engineering logic.\nFor this reason, I created a PostgreSQL materialized view specifically for the dashboard.\nPython and SQL prepare the data, while Tableau focuses on visualization and interaction.\nThis separation creates a cleaner and more maintainable architecture."
+  },
+  {
+    "objectID": "index.html#dashboard-data-quality-performance",
+    "href": "index.html#dashboard-data-quality-performance",
+    "title": "Citi Bike Jersey City",
+    "section": "13. Dashboard Data Quality & Performance",
+    "text": "13. Dashboard Data Quality & Performance\nThe materialized view contained:\n948,659 rows\nQuality checks:\n\n\n948,659 / 948,659 had weather information\n948,659 / 948,659 had calculated distance\n520,640 had start-neighborhood matches\n516,527 had end-neighborhood matches\n\nIndexes were added for:\n\n\nride_id\nride_date\nride_hour\nmember_casual\n\n\nBefore connecting the data to Tableau, I validated the materialized view.\nIt contained 948,659 records, with complete weather and distance information.\nNeighborhood coverage was lower because some stations fall outside the Jersey City neighborhood polygons.\nI also created indexes for frequently filtered dimensions to improve dashboard performance."
+  },
+  {
+    "objectID": "index.html#final-tableau-dashboard",
+    "href": "index.html#final-tableau-dashboard",
+    "title": "Citi Bike Jersey City",
+    "section": "14. Final Tableau Dashboard",
+    "text": "14. Final Tableau Dashboard\nExplore the Interactive Citi Bike Dashboard\n\n\nOpen Interactive Dashboard on Tableau Public\n\n\nThe final stage is the Tableau dashboard.\nInstead of presenting every Python chart separately, the dashboard combines high-level KPIs with temporal, geographic, weather, and station-flow analysis.\nWhen presenting it, I follow a clear sequence.\nFirst, how much activity exists. Then when people ride, where they ride, how weather relates to demand, and finally how stations connect through origin-destination flows."
+  },
+  {
+    "objectID": "index.html#key-findings",
+    "href": "index.html#key-findings",
+    "title": "Citi Bike Jersey City",
+    "section": "15. Key Findings",
+    "text": "15. Key Findings\nThe analysis reveals a connected mobility story.\n\n\nCiti Bike demand shows strong seasonality\nSummer activity is substantially higher than winter\nGrove St PATH leads both origin and destination rankings\nActivity is concentrated in a relatively small number of neighborhoods\nVan Vorst Park leads total neighborhood activity\nNewport shows particularly high activity per station\nWeather provides context for daily demand variation\nTransport hubs repeatedly appear among the busiest locations\n\n\nSeveral patterns stand out across the complete analysis.\nDemand is strongly seasonal and geographically concentrated.\nGrove Street PATH dominates the station analysis, while Van Vorst Park leads total neighborhood activity.\nNewport is interesting because its average activity per station is particularly high.\nWeather adds another layer of context to temporal demand patterns.\nTogether, these findings show why time, geography, and environmental conditions should be analyzed together."
+  },
+  {
+    "objectID": "index.html#from-insight-to-decision",
+    "href": "index.html#from-insight-to-decision",
+    "title": "Citi Bike Jersey City",
+    "section": "16. From Insight to Decision",
+    "text": "16. From Insight to Decision\nThe analysis can support operational decisions such as:\n\n\nPrioritizing high-demand stations\nSupporting bike rebalancing around transport hubs\nAnticipating seasonal demand changes\nUsing weather as an additional planning signal\nIdentifying neighborhoods with high activity per station\nComparing arrivals and departures for imbalance\nMonitoring important origin-destination flows\n\n\nThe purpose of analytics is not only to describe the past.\nThese insights can support operational decisions.\nHigh-volume transport hubs may need closer monitoring and rebalancing.\nSeasonality can support capacity planning, while weather can provide an additional demand signal.\nNeighborhood analysis can also identify locations where a small number of stations carry particularly high activity."
+  },
+  {
+    "objectID": "index.html#architecture-limitations",
+    "href": "index.html#architecture-limitations",
+    "title": "Citi Bike Jersey City",
+    "section": "17. Architecture & Limitations",
+    "text": "17. Architecture & Limitations\nEnd-to-End Pipeline\nCiti Bike Files\n      ↓\nPython Download & Cleaning\n      ↓\nWeather + GeoJSON Enrichment\n      ↓\nEDA + Spatial Analysis\n      ↓\nPostgreSQL + PostGIS\n      ↓\nMaterialized View\n      ↓\nTableau Dashboard\nLimitations\n\n\nSome destination information is missing\nNot all stations fall inside Jersey City neighborhood polygons\nWeather relationships show association, not causality\nRow counts differ across processing stages\n2026 extension currently covers January–June\n\n\nThis slide summarizes both the architecture and the main limitations.\nThe project moves from raw Citi Bike files through Python, weather and geographic enrichment, exploratory analysis, PostgreSQL and PostGIS, and finally Tableau.\nSome destination data is missing, and not every station falls inside the Jersey City neighborhood boundaries.\nWeather relationships are exploratory and should not be interpreted as proof of causality.\nDifferent processing stages also explain why row counts are not identical throughout the project."
+  },
+  {
+    "objectID": "index.html#conclusion",
+    "href": "index.html#conclusion",
+    "title": "Citi Bike Jersey City",
+    "section": "18. Conclusion",
+    "text": "18. Conclusion\nFrom raw rides to a complete analytics workflow\nThe project combines:\n\n\nPython + Pandas — acquisition, cleaning, analytics\nOpen-Meteo — weather enrichment\nGeoPandas + Folium — spatial analysis\nPostgreSQL + PostGIS — analytical storage\nSQLAlchemy — Python/database integration\nTableau — interactive business intelligence\n\n\nKey takeaway\nThe value came from connecting time, weather, geography, stations, and rider activity into one analytical story."
+  },
+  {
+    "objectID": "index.html#contacts-do-not-forget",
+    "href": "index.html#contacts-do-not-forget",
+    "title": "Citi Bike Jersey City",
+    "section": "Contacts DO NOT FORGET",
+    "text": "Contacts DO NOT FORGET\ntest"
+  }
+]
