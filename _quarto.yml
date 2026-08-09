@@ -5,6 +5,3 @@ project:
 website:
   title: "Data Vision" # YOUR TITLE
   # favicon: img/favicon.png YOUR LOGO
-  
-execute:
-  freeze: auto
