@@ -126,10 +126,10 @@
     "text": "18. Conclusion\nFrom raw rides to a complete analytics workflow\nThe project combines:\n\n\nPython + Pandas — acquisition, cleaning, analytics\nOpen-Meteo — weather enrichment\nGeoPandas + Folium — spatial analysis\nPostgreSQL + PostGIS — analytical storage\nSQLAlchemy — Python/database integration\nTableau — interactive business intelligence\n\n\nKey takeaway\nThe value came from connecting time, weather, geography, stations, and rider activity into one analytical story."
   },
   {
-    "objectID": "index.html#contacts-do-not-forget",
-    "href": "index.html#contacts-do-not-forget",
+    "objectID": "index.html#contacts",
+    "href": "index.html#contacts",
     "title": "Citi Bike Jersey City",
-    "section": "Contacts DO NOT FORGET",
-    "text": "Contacts DO NOT FORGET\ntest"
+    "section": "19. Contacts",
+    "text": "19. Contacts\n\nName: Pertshuhi Papikyan\nEmail: ppertshuhi@gmail.com\nLinkedIn: linkedin.com/in/pertshuhi-papikyan\nGitHub: github.com/Pertshuhipapikyan"
   }
 ]
